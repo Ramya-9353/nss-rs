@@ -56,8 +56,7 @@ impl SelfEncrypt {
 
     fn make_aead(&self, k: &SymKey, salt: &[u8], mode: Mode) -> Res<RecordProtection> {
         debug_assert_eq!(salt.len(), Self::SALT_LENGTH);
-        let salt = hkdf::import_key(self.version, salt)?;
-        let secret = hkdf::extract(self.version, self.cipher, Some(&salt), k)?;
+        let secret = hkdf::extract_with_salt(self.version, self.cipher, salt, k)?;
         RecordProtection::new(self.version, self.cipher, &secret, "neqo self", mode)
     }
 
