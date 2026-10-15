@@ -165,6 +165,29 @@ pub fn extract(
     SymKey::from_ptr(prk)
 }
 
+/// Extract a PRK from the given raw `salt` and IKM using the algorithm defined in RFC 5869.
+///
+/// This produces the same PRK as importing `salt` with [`import_key`] and passing it to
+/// [`extract`], but hands the salt to NSS as data, which avoids creating (and destroying)
+/// a temporary key object for it.
+///
+/// # Errors
+///
+/// Errors returned if the ciphersuite or protocol version is not supported, if inputs are
+/// too large, or if the NSS functions fail.
+pub fn extract_with_salt(
+    version: Version,
+    cipher: Cipher,
+    salt: &[u8],
+    ikm: &SymKey,
+) -> Res<SymKey> {
+    let kdf = match key_size(version, cipher)? {
+        48 => HkdfAlgorithm::HKDF_SHA2_384,
+        _ => HkdfAlgorithm::HKDF_SHA2_256,
+    };
+    Hkdf::new(kdf).extract(salt, ikm)
+}
+
 /// Expand a PRK using the HKDF-Expand-Label function defined in RFC 8446.
 ///
 /// # Errors
