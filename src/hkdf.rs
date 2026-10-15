@@ -153,6 +153,10 @@ pub fn import_key(version: Version, buf: &[u8]) -> Res<SymKey> {
 /// # Errors
 ///
 /// Errors returned if inputs are too large or the NSS functions fail.
+#[deprecated(
+    since = "0.16.3",
+    note = "use `extract_with_salt`, which takes the salt as bytes and avoids importing it as a key"
+)]
 pub fn extract(
     version: Version,
     cipher: Cipher,
@@ -168,8 +172,9 @@ pub fn extract(
 /// Extract a PRK from the given raw `salt` and IKM using the algorithm defined in RFC 5869.
 ///
 /// This produces the same PRK as importing `salt` with [`import_key`] and passing it to
-/// [`extract`], but hands the salt to NSS as data, which avoids creating (and destroying)
-/// a temporary key object for it.
+/// the deprecated [`extract`], but hands the salt to NSS as data, which avoids creating
+/// (and destroying) a temporary key object for it. An empty `salt` is equivalent to
+/// passing no salt to [`extract`].
 ///
 /// # Errors
 ///

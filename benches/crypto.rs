@@ -33,7 +33,8 @@ fn key_schedule(c: &mut Criterion) {
     for (name, cipher) in CIPHERS {
         group.bench_function(BenchmarkId::new("extract", name), |b| {
             b.iter(|| {
-                hkdf::extract(TLS_VERSION_1_3, black_box(cipher), Some(&secret), &secret).unwrap()
+                hkdf::extract_with_salt(TLS_VERSION_1_3, black_box(cipher), &[0x5a; 32], &secret)
+                    .unwrap()
             });
         });
         group.bench_function(BenchmarkId::new("expand_label", name), |b| {

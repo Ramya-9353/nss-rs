@@ -52,6 +52,8 @@ fn import_keys(cipher: Cipher) -> (SymKey, SymKey) {
 fn extract(cipher: Cipher, expected: &[u8]) {
     fixture_init();
     let (salt, ikm) = import_keys(cipher);
+    // Keep checking the deprecated key-salt API against `extract_with_salt`.
+    #[expect(deprecated, reason = "cross-checks the deprecated API")]
     let prk = hkdf::extract(TLS_VERSION_1_3, cipher, Some(&salt), &ikm)
         .expect("HKDF Extract should work");
     let raw_prk = prk.key_data().expect("key should have bytes");
